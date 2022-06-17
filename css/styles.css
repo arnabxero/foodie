@@ -1,0 +1,62 @@
+:root {
+  --transition-speed: 600ms;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.basic-btn {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-btn:hover {
+  box-shadow: 0 0 6px rgba(255, 0, 0, 1);
+  transition: var(--transition-speed);
+}
+
+.search-box:hover {
+  box-shadow: 0 0 6px rgba(255, 0, 0, 1);
+  transition: var(--transition-speed);
+}
+
+.profile-btn:hover {
+  box-shadow: 0 0 6px rgba(255, 0, 0, 1);
+  transition: var(--transition-speed);
+}
+
+.up-file-dp {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fff09d;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  transition: var(--transition-speed);
+}
+
+.up-file-dp:hover {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  box-shadow: 0 0 6px rgba(35, 173, 278, 1);
+}
+
+.up-file-btn {
+  width: 100%;
+  padding: 5px;
+  color: rgb(0, 0, 0);
+  background-color: #ff8e8e;
+  box-shadow: 0 2px 8px 4px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  transition: var(--transition-speed);
+}
+
+.up-file-btn:hover {
+  width: 100%;
+  padding: 5px;
+  box-shadow: 0 0 6px rgba(35, 173, 278, 1);
+}
+
+.test {
+  color: rgb(255, 103, 103);
+}
