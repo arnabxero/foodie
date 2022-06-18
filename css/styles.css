@@ -57,6 +57,94 @@ html {
   box-shadow: 0 0 6px rgba(35, 173, 278, 1);
 }
 
+.profile-tab {
+  padding: 10px;
+  background-color: white;
+  color: black;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  transition: var(--transition-speed);
+  text-decoration: none;
+}
+
+.profile-tab:hover {
+  padding: 10px;
+  background-color: rgb(255, 141, 141);
+  color: black;
+  text-decoration: none;
+}
+
+.profile-tab-active {
+  padding: 10px;
+  background-color: rgb(168, 0, 101);
+  color: rgb(255, 255, 255);
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  transition: var(--transition-speed);
+  text-decoration: none;
+}
+
+.profile-tab-active:hover {
+  text-decoration: none;
+}
+
+.profile-tab-list {
+  padding: 10px;
+  background-color: white;
+  margin: 5px;
+  border: 1px solid rgb(154, 154, 154);
+  border-radius: 5px;
+  transition: var(--transition-speed);
+}
+
+.profile-tab-list:hover {
+  padding: 10px;
+  background-color: rgb(255, 180, 226);
+  color: black;
+  margin: 5px;
+  border: 1px solid rgb(154, 154, 154);
+  border-radius: 5px;
+}
+
+.time-text {
+  font-style: italic;
+  color: gray;
+  font-size: 12px;
+}
+
+.up-file-dp {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #ffbbbe;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  transition: var(--transition-speed);
+}
+
+.up-file-dp:hover {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+  box-shadow: 0 0 6px rgba(35, 173, 278, 1);
+}
+
+.content-text {
+  font-weight: bold;
+}
+
+.blog-edit-a {
+  padding: 10px;
+  color: black;
+  background-color: white;
+  transition: var(--transition-speed);
+  margin: 20px;
+  font-weight: bold;
+}
+
+.blog-edit-a:hover {
+  background-color: rgb(255, 128, 232);
+}
+
 .test {
   color: rgb(255, 103, 103);
 }

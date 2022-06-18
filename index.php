@@ -70,6 +70,18 @@ class Homepage
       }
    }
 }
+
+
+function get_user_details($uid)
+{
+   include('include/connection.php');
+
+   $sql_user_details = "SELECT * FROM users WHERE id = '$uid'";
+   $res = mysqli_query($con, $sql_user_details);
+   $row = mysqli_fetch_array($res);
+
+   return $row;
+}
 ?>
 
 
@@ -126,16 +138,16 @@ class Homepage
                <div class="collapse navbar-collapse" id="navbarSupportedContent">
                   <ul class="navbar-nav">
                      <li class="nav-item active">
-                        <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
                      </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="product.html">All</a>
+                        <a class="nav-link" href="all.php">All</a>
                      </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="blog_list.html">Blog</a>
+                        <a class="nav-link" href="blog.php">Blog</a>
                      </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact</a>
+                        <a class="nav-link" href="contact.php">Contact</a>
                      </li>
                      <li class="nav-item">
                         <a href="profile.php" class="btn btn-secondary btn-sm nav-link btn1" type="button">
@@ -289,106 +301,75 @@ class Homepage
    <!-- end product section -->
 
 
-   <!-- subscribe section -->
-   <section class="subscribe_section">
-      <div class="container-fuild">
-         <div class="box">
-            <div class="row">
-               <div class="col-md-6 offset-md-3">
-                  <div class="subscribe_form ">
-                     <div class="heading_container heading_center">
-                        <h3>Subscribe To Get Discount Offers</h3>
-                     </div>
-                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
-                     <form action="">
-                        <input type="email" placeholder="Enter your email">
-                        <button>
-                           subscribe
-                        </button>
-                     </form>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-   </section>
-   <!-- end subscribe section -->
    <!-- client section -->
    <section class="client_section layout_padding">
       <div class="container">
          <div class="heading_container heading_center">
             <h2>
-               Customer's Testimonial
+               Latest Blog Posts
             </h2>
          </div>
          <div id="carouselExample3Controls" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner">
-               <div class="carousel-item active">
-                  <div class="box col-lg-10 mx-auto">
-                     <div class="img_container">
-                        <div class="img-box">
-                           <div class="img_box-inner">
-                              <img src="images/client.jpg" alt="">
-                           </div>
-                        </div>
-                     </div>
-                     <div class="detail-box">
-                        <h5>
-                           Anna Trevor
-                        </h5>
-                        <h6>
-                           Customer
-                        </h6>
-                        <p>
-                           Dignissimos reprehenderit repellendus nobis error quibusdam? Atque animi sint unde quis reprehenderit, et, perspiciatis, debitis totam est deserunt eius officiis ipsum ducimus ad labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-               <div class="carousel-item">
-                  <div class="box col-lg-10 mx-auto">
-                     <div class="img_container">
-                        <div class="img-box">
-                           <div class="img_box-inner">
-                              <img src="images/client.jpg" alt="">
-                           </div>
-                        </div>
-                     </div>
-                     <div class="detail-box">
-                        <h5>
-                           Anna Trevor
-                        </h5>
-                        <h6>
-                           Customer
-                        </h6>
-                        <p>
-                           Dignissimos reprehenderit repellendus nobis error quibusdam? Atque animi sint unde quis reprehenderit, et, perspiciatis, debitis totam est deserunt eius officiis ipsum ducimus ad labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-               <div class="carousel-item">
-                  <div class="box col-lg-10 mx-auto">
-                     <div class="img_container">
-                        <div class="img-box">
-                           <div class="img_box-inner">
-                              <img src="images/client.jpg" alt="">
-                           </div>
-                        </div>
-                     </div>
-                     <div class="detail-box">
-                        <h5>
-                           Anna Trevor
-                        </h5>
-                        <h6>
-                           Customer
-                        </h6>
-                        <p>
-                           Dignissimos reprehenderit repellendus nobis error quibusdam? Atque animi sint unde quis reprehenderit, et, perspiciatis, debitis totam est deserunt eius officiis ipsum ducimus ad labore modi voluptatibus accusantium sapiente nam! Quaerat.
-                        </p>
-                     </div>
-                  </div>
-               </div>
+
+               <?php
+
+               $active = "";
+               $i = 5;
+
+
+               $post_sql = "SELECT * FROM posts ORDER BY id DESC";
+               $post_res = mysqli_query($con, $post_sql);
+
+               while ($i > 0) {
+                  if ($i == 5) {
+                     $active = "active";
+                  } else {
+                     $active = "";
+                  }
+
+                  $post_row = mysqli_fetch_assoc($post_res);
+                  $user_id = $post_row['user_id'];
+                  $content = $post_row['post'];
+                  if (strlen($content) > 300) {
+                     $content = substr($content, 0, 300);
+                  }
+                  $user_details_row = get_user_details($user_id);
+                  $user_photo = "files/profile/" . $user_details_row['pro_pic'];
+                  $user_name = $user_details_row['first_name'] . " " . $user_details_row['last_name'];
+
+
+
+                  echo '
+                            <div class="carousel-item ' . $active . '">
+                                <div class="box col-lg-10 mx-auto">
+                                    <div class="img_container">
+                                        <div class="img-box">
+                                            <div class="img_box-inner">
+                                                <img src="' . $user_photo . '" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="detail-box">
+                                        <h5>
+                                            ' . $user_name . '
+                                        </h5>
+                                        <h6>
+                                            User
+                                        </h6>
+                                        <p>
+                                            ' . $content . '
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>';
+                  $i--;
+               }
+
+
+               ?>
+
+
             </div>
             <div class="carousel_btn_box">
                <a class="carousel-control-prev" href="#carouselExample3Controls" role="button" data-slide="prev">
@@ -404,6 +385,55 @@ class Homepage
       </div>
    </section>
    <!-- end client section -->
+
+   <section class="subscribe_section">
+      <div class="container-fuild">
+         <div class="box" style="background-color: white; padding-top: 0px;">
+            <div class="row">
+               <div class="col-md-6 offset-md-3">
+                  <div class="subscribe_form ">
+                     <form action="blog.php">
+                        <a href="">
+                           <button>
+                              Go To Blog!
+                           </button>
+                        </a>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </section>
+
+
+
+   <!-- subscribe section -->
+   <section class="subscribe_section">
+      <div class="container-fuild">
+         <div class="box">
+            <div class="row">
+               <div class="col-md-6 offset-md-3">
+                  <div class="subscribe_form ">
+                     <div class="heading_container heading_center">
+                        <h3>Subscribe To Get Coupons and News</h3>
+                     </div>
+                     <p>Keep updated with restaurant opening events news, food reviews, recipes, party centers and many more!</p>
+                     <form action="subdir/subscribe.php" method="post">
+                        <input type="email" name="email" placeholder="Enter your email">
+                        <button>
+                           subscribe
+                        </button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </section>
+   <!-- end subscribe section -->
+
+
    <!-- footer start -->
    <footer>
       <div class="container">
@@ -411,12 +441,12 @@ class Homepage
             <div class="col-md-4">
                <div class="full">
                   <div class="logo_footer">
-                     <a href="#"><img width="210" src="images/logo.png" alt="#" /></a>
+                     <a href="index.php"><img width="210" src="files/icons/foodie.gif" alt="Foodie" /></a>
                   </div>
                   <div class="information_f">
-                     <p><strong>ADDRESS:</strong> 28 White tower, Street Name New York City, USA</p>
-                     <p><strong>TELEPHONE:</strong> +91 987 654 3210</p>
-                     <p><strong>EMAIL:</strong> yourmain@gmail.com</p>
+                     <p><strong>ADDRESS:</strong> 59, Lane - 7, Housing Estate, Amberkhana, Sylhet, Bangladesh</p>
+                     <p><strong>PHONE:</strong> +880 1926 496967</p>
+                     <p><strong>EMAIL:</strong> arnab.xero@gmail.com</p>
                   </div>
                </div>
             </div>
@@ -428,12 +458,10 @@ class Homepage
                            <div class="widget_menu">
                               <h3>Menu</h3>
                               <ul>
-                                 <li><a href="#">Home</a></li>
-                                 <li><a href="#">About</a></li>
-                                 <li><a href="#">Services</a></li>
-                                 <li><a href="#">Testimonial</a></li>
-                                 <li><a href="#">Blog</a></li>
-                                 <li><a href="#">Contact</a></li>
+                                 <li><a href="index.php">Home</a></li>
+                                 <li><a href="all.php">All</a></li>
+                                 <li><a href="blog.php">Blog</a></li>
+                                 <li><a href="contact.php">Contact</a></li>
                               </ul>
                            </div>
                         </div>
@@ -441,12 +469,10 @@ class Homepage
                            <div class="widget_menu">
                               <h3>Account</h3>
                               <ul>
-                                 <li><a href="#">Account</a></li>
-                                 <li><a href="#">Checkout</a></li>
-                                 <li><a href="#">Login</a></li>
-                                 <li><a href="#">Register</a></li>
-                                 <li><a href="#">Shopping</a></li>
-                                 <li><a href="#">Widget</a></li>
+                                 <li><a href="profile.php">Account</a></li>
+                                 <li><a href="recover.php">Recovery</a></li>
+                                 <li><a href="login.php">Login</a></li>
+                                 <li><a href="signup.php">Register</a></li>
                               </ul>
                            </div>
                         </div>
@@ -477,7 +503,7 @@ class Homepage
    </footer>
    <!-- footer end -->
    <div class="cpy_">
-      <p>© 2021 All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
+      <p>© 2022 All Rights Reserved By <a target="_blank" href="https://arnabxero.github.io">Arnab & Swadhin</a></p>
    </div>
    <!-- jQery -->
    <script src="js/jquery-3.4.1.min.js"></script>
