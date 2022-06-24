@@ -157,7 +157,31 @@ function get_user_details($uid)
     <!-- end header section -->
 
 
-
+    <!-- subscribe section -->
+    <section class="subscribe_section">
+        <div class="container-fuild">
+            <div class="box">
+                <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        <div class="subscribe_form ">
+                            <div class="heading_container heading_center">
+                                <h3>Can't find your owned restaurant?<br>Add Now!</h3>
+                            </div>
+                            <p>If you are owner of a restaurant, then you can enlist and manage your restaurant details!</p>
+                            <form action="add_restaurant.php">
+                                <a href="">
+                                    <button>
+                                        Add Restaurant
+                                    </button>
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end subscribe section -->
 
     <!-- product section -->
     <section class="product_section layout_padding">

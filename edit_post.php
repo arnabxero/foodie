@@ -11,6 +11,7 @@ $id = "-99";
 $profile_link = "login.php";
 $profile_photo = "webcon.png";
 $display = "";
+$post_id = $_GET['id'];
 
 if (isset($_SESSION['logid'])) {
     $id = $_SESSION['logid'];
@@ -36,6 +37,42 @@ function get_user_details($uid)
     return $row;
 }
 
+function check_post_ownership($auhtor_id, $user_id)
+{
+    if ($auhtor_id == $user_id) {
+        return true;
+    }
+    return false;
+}
+
+
+
+//////////////////////////////////////////////////////
+if (!(isset($_GET['id']))) {
+    header('Location: blog.php');
+}
+$post_id = $_GET['id'];
+
+$sql = "SELECT * FROM posts WHERE id = '$post_id'";
+$res = mysqli_query($con, $sql);
+$row = mysqli_fetch_array($res);
+
+$title = $row['title'];
+$content = $row['post'];
+$time = $row['date_time'];
+$auhtor_id = $row['user_id'];
+$user_row = get_user_details($auhtor_id);
+$author_name = $user_row['first_name'] . " " . $user_row['last_name'];
+$image_link = "files/images/" . $row['photo'];
+
+
+
+
+if (isset($_SESSION['logid'])) {
+    if (!(check_post_ownership($auhtor_id, $_SESSION['logid']))) {
+        header('Location: blog.php');
+    }
+}
 
 ?>
 
@@ -116,19 +153,6 @@ function get_user_details($uid)
         </div>
     </header>
     <!-- end header section -->
-    <!-- inner page section -->
-    <section class="inner_page_head">
-        <div class="container_fuild">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="full">
-                        <h3>Create A Blog Post</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- end inner page section -->
     <!-- why section -->
     <section class="why_section layout_padding">
         <div class="container">
@@ -136,17 +160,13 @@ function get_user_details($uid)
             <div class="row">
                 <div class="col-lg-8 offset-lg-2">
                     <div class="full">
-                        <form action="subdir/post_now.php" method="POST" enctype="multipart/form-data">
+                        <form action="subdir/update_post_sub.php" method="POST">
                             <fieldset>
-                                <input type="text" placeholder="Enter title" name="title" required />
+                                <input type="hidden" value="<?= $post_id ?>" name="post_id" />
+                                <input type="text" placeholder="Enter title" name="title" required value="<?= $title ?>" />
                                 <textarea class="post-content-area" name="content" cols="50" rows="10" placeholder="Your Post Text Here" required></textarea>
                                 <br>
-                                <div class="up-file-dp">
-                                    <label>Attach A File</label>
-                                    <input type="file" name="image" />
-                                </div>
-                                <br>
-                                <input type="submit" value="Submit" name="submit" />
+                                <input type="submit" value="Update" name="submit" />
                             </fieldset>
                         </form>
                     </div>
@@ -157,37 +177,13 @@ function get_user_details($uid)
     </section>
     <!-- end why section -->
 
-
-    <script src="assets/emoji/vanillaEmojiPicker.js"></script>
-    <script>
-        new EmojiPicker({
-            trigger: [{
-                selector: '.emoji-btn',
-                insertInto: ['.one', '.two']
-            }],
-            closeButton: true,
-        });
-    </script>
-
-
     <script src="ckeditor/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('content');
     </script>
     <script>
-        let arrow = document.querySelectorAll(".arrow");
-        for (var i = 0; i < arrow.length; i++) {
-            arrow[i].addEventListener("click", (e) => {
-                let arrowParent = e.target.parentElement.parentElement; //selecting main parent of arrow
-                arrowParent.classList.toggle("showMenu");
-            });
-        }
-        let sidebar = document.querySelector(".sidebar");
-        let sidebarBtn = document.querySelector(".bx-menu");
-        console.log(sidebarBtn);
-        sidebarBtn.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-        });
+        var cont_val = <?php echo json_encode($content); ?>;
+        CKEDITOR.instances['content'].setData(cont_val);
     </script>
 
     <!-- footer start -->

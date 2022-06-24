@@ -27,8 +27,11 @@ class uregister
         $password = mysqli_real_escape_string($con, $password);
 
 
+        $today = new DateTime("now", new DateTimeZone('Asia/Dhaka'));
+        $saveTime =  $today->format('d/m/Y');
+
         //insert user into database table --start
-        $sql = "INSERT INTO `users` (`first_name`, `last_name`, `address`, `userName`, `email`, `pass`) VALUES ('$first_name', '$last_name', '$address', '$username', '$email', '$password')";
+        $sql = "INSERT INTO `users` (`first_name`, `last_name`, `address`, `userName`, `email`, `pass`, `join_date`) VALUES ('$first_name', '$last_name', '$address', '$username', '$email', '$password', '$saveTime')";
         $rs = mysqli_query($con, $sql);
         //insert user into database table --end
 

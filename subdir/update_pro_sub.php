@@ -1,12 +1,11 @@
 <?php
-
+session_start();
 
 class uregister
 {
-    public $class_uid;
-    public $class_link;
 
-    function sub_reg($first_name, $last_name, $address, $username, $phone, $twitter, $fb, $instagram)
+
+    function sub_reg($first_name, $last_name, $address, $username, $phone, $twitter, $fb, $instagram, $id)
     {
         include('../include/connection.php');
         include('../include/mailer.php');
@@ -33,16 +32,16 @@ class uregister
 
         $sql1 = "UPDATE users SET first_name = '$first_name', last_name = '$last_name', userName = '$username',
                                     phone = '$phone', address = '$address', twitter = '$twitter',
-                                    fb = '$fb', instagram = '$instagram'";
+                                    fb = '$fb', instagram = '$instagram' WHERE id = '$id'";
 
         $res = mysqli_query($con, $sql1);
 
         if ($res) {
-            echo "Successfully Updated";
+            echo "<h1>Successfully Updated</h1>";
             $goto = 'Refresh: 3; URL=../profile.php';
             header($goto);
         } else {
-            echo "Failed to Update";
+            echo "<h1>Failed to Update</h1>";
             $goto = 'Refresh: 3; URL=../profile.php';
             header($goto);
         }
@@ -50,6 +49,7 @@ class uregister
 }
 
 
+$id = $_SESSION['logid'];
 
 $first_name = $_POST['first_name'];
 $last_name = $_POST['last_name'];
@@ -64,6 +64,63 @@ $instagram = $_POST['instagram'];
 
 $register_user = new uregister();
 
-if ($register_user->sub_reg($first_name, $last_name, $address, $username, $phone, $twitter, $fb, $instagram)) {
+if ($register_user->sub_reg($first_name, $last_name, $address, $username, $phone, $twitter, $fb, $instagram, $id)) {
     echo "<h1>Sorry User Already Registered</h1>";
 }
+
+
+?>
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap" rel="stylesheet" />
+    <title>Updating.....</title>
+
+
+    <style>
+
+
+
+
+
+
+
+    </style>
+</head>
+
+<body style="text-align: center;">
+
+
+    <progress class="loading-bar" value="0" max="10" id="progressBar"></progress>
+
+    <div class="loading-text">Loading - <div class="loading-text" id="ptext"></div> Seconds Left...</div>
+
+    <script>
+        var timeleft = 10;
+
+        var downloadTimer = setInterval(function() {
+            if (timeleft <= 0) {
+                clearInterval(downloadTimer);
+            }
+            document.getElementById("progressBar").value = 10 - timeleft;
+
+            document.getElementById("ptext").textContent = timeleft / 10;
+
+            timeleft -= 1;
+        }, 100);
+    </script>
+
+</body>
+
+</html>

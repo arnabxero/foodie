@@ -145,6 +145,44 @@ html {
   background-color: rgb(255, 128, 232);
 }
 
+.del-btn {
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: red;
+  border: 2px solid black;
+  margin: 10px;
+  width: 100px;
+  transition: var(--transition-speed);
+}
+
+.del-btn:hover {
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: rgb(125, 2, 2);
+  border: 2px solid rgb(43, 0, 255);
+  margin: 10px;
+  width: 100px;
+  transition: var(--transition-speed);
+}
+
 .test {
   color: rgb(255, 103, 103);
+}
+
+.like-btn {
+  background-color: aliceblue;
+  padding: 10px;
+  border-radius: 15px;
+  border: 1px solid rgb(255, 0, 191);
+  transition: var(--transition-speed);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.like-btn:hover {
+  border: 1px solid rgb(102, 0, 255);
+  box-shadow: 0 0 6px rgba(35, 173, 278, 1);
 }

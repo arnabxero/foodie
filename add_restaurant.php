@@ -65,6 +65,16 @@ function get_user_details($uid)
     <link href="css/styles.css" rel="stylesheet" />
     <!-- responsive style -->
     <link href="css/responsive.css" rel="stylesheet" />
+
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUUoZJ6e4Wlwp6S7X8JojEEXHtaCe4hlI"></script>
+    <script src="https://unpkg.com/location-picker/dist/location-picker.min.js"></script>
+    <style type="text/css">
+        #map {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
 </head>
 
 <style>
@@ -95,10 +105,10 @@ function get_user_details($uid)
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item active">
                             <a class="nav-link" href="all.php">All</a>
                         </li>
-                        <li class="nav-item active">
+                        <li class="nav-item">
                             <a class="nav-link" href="blog.php">Blog</a>
                         </li>
                         <li class="nav-item">
@@ -122,7 +132,7 @@ function get_user_details($uid)
             <div class="row">
                 <div class="col-md-12">
                     <div class="full">
-                        <h3>Create A Blog Post</h3>
+                        <h3>Enlist Your Restaurant Now</h3>
                     </div>
                 </div>
             </div>
@@ -136,15 +146,63 @@ function get_user_details($uid)
             <div class="row">
                 <div class="col-lg-8 offset-lg-2">
                     <div class="full">
-                        <form action="subdir/post_now.php" method="POST" enctype="multipart/form-data">
+                        <form action="subdir/add_rest_now.php" method="POST" enctype="multipart/form-data">
                             <fieldset>
-                                <input type="text" placeholder="Enter title" name="title" required />
-                                <textarea class="post-content-area" name="content" cols="50" rows="10" placeholder="Your Post Text Here" required></textarea>
+                                <label>Restaurant Name</label>
+                                <input type="text" placeholder="Enter Restaurant Name" name="name" required />
+                                <label>Restaurant Phone Number</label>
+                                <input type="text" placeholder="Enter Restaurant Phone Number" name="phone" required />
+                                <label>Restaurant Email Address</label>
+                                <input type="email" placeholder="Enter Restaurant Email Address" name="email" required />
+                                <label>Address</label>
+                                <textarea class="post-content-area" name="address" cols="50" rows="5" placeholder="Enter Your Restaurant Address!" required></textarea>
+                                <br>
+                                <label>Details</label>
+                                <textarea class="post-content-area" name="details" cols="50" rows="10" placeholder="Enter Your Restaurant Details!" required></textarea>
                                 <br>
                                 <div class="up-file-dp">
-                                    <label>Attach A File</label>
-                                    <input type="file" name="image" />
+                                    <label>Add Your restaurant's Cover Photo</label>
+                                    <input type="file" name="image" required />
                                 </div>
+
+                                <div id="map"></div>
+
+                                <br>
+                                <button type="button" id="confirmPosition">Confirm Position</button>
+                                <br>
+                                <p>Pointed Location: <span id="onIdlePositionView"></span></p>
+                                <p>Choosen Location: <span id="onClickPositionView">None</span></p>
+
+                                <input placeholder="Map Lattitude" value="" id="input_map_lat" name="map_lat" />
+
+                                <input placeholder="Map Longitude" value="" id="input_map_lng" name="map_lng" />
+
+                                <script>
+                                    var confirmBtn = document.getElementById('confirmPosition');
+                                    var onClickPositionView = document.getElementById('onClickPositionView');
+                                    var onIdlePositionView = document.getElementById('onIdlePositionView');
+
+                                    var lp = new locationPicker('map', {
+                                        setCurrentPosition: true,
+                                    }, {
+                                        zoom: 15
+                                    });
+
+                                    confirmBtn.onclick = function() {
+                                        var location = lp.getMarkerPosition();
+                                        onClickPositionView.innerHTML = location.lat + ',' + location.lng;
+                                        document.getElementById("input_map_lat").value = location.lat;
+                                        document.getElementById("input_map_lng").value = location.lng;
+                                    };
+
+                                    google.maps.event.addListener(lp.map, 'idle', function(event) {
+                                        var location = lp.getMarkerPosition();
+                                        onIdlePositionView.innerHTML = location.lat + ',' + location.lng;
+                                    });
+                                </script>
+
+
+
                                 <br>
                                 <input type="submit" value="Submit" name="submit" />
                             </fieldset>
@@ -158,37 +216,6 @@ function get_user_details($uid)
     <!-- end why section -->
 
 
-    <script src="assets/emoji/vanillaEmojiPicker.js"></script>
-    <script>
-        new EmojiPicker({
-            trigger: [{
-                selector: '.emoji-btn',
-                insertInto: ['.one', '.two']
-            }],
-            closeButton: true,
-        });
-    </script>
-
-
-    <script src="ckeditor/ckeditor.js"></script>
-    <script>
-        CKEDITOR.replace('content');
-    </script>
-    <script>
-        let arrow = document.querySelectorAll(".arrow");
-        for (var i = 0; i < arrow.length; i++) {
-            arrow[i].addEventListener("click", (e) => {
-                let arrowParent = e.target.parentElement.parentElement; //selecting main parent of arrow
-                arrowParent.classList.toggle("showMenu");
-            });
-        }
-        let sidebar = document.querySelector(".sidebar");
-        let sidebarBtn = document.querySelector(".bx-menu");
-        console.log(sidebarBtn);
-        sidebarBtn.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-        });
-    </script>
 
     <!-- footer start -->
     <footer>

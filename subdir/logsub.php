@@ -27,20 +27,11 @@ class ulogin
         if ($count == 1) {
 
             if ($row['verified'] == "YES") {
-                //Admin or not check//
-                //$id = $row['id'];
-                //$user = $row['userName'];
-
-                /*$adminsql = "SELECT * FROM admin_list WHERE uid = '$id' AND username = '$user'";
-                $adminres = mysqli_query($con, $adminsql);
-                $admincount = mysqli_num_rows($adminres);
-
-                if($admincount>1){
-                    $_SESSION["admin"] = "YES";
-                }*/
 
                 $_SESSION["logid"] = $row['id'];
-                
+
+                $_SESSION['rank'] = $row['rank'];
+
                 echo "<h1> Login Successful<br>Loading Your Profile</h1>";
                 header('Location: ../index.php');
             } else {

@@ -24,7 +24,7 @@ class post_now
 
         $rt = false;
 
-        $sql = "SELECT * FROM posts WHERE photo = '$gen_fname'";
+        $sql = "SELECT * FROM restaurants WHERE pro_pic = '$gen_fname'";
         $res = mysqli_query($con, $sql);
         $count = mysqli_num_rows($res);
 
@@ -53,7 +53,7 @@ class post_now
         $file_size = $_FILES['image']['size'];
         $file_tmp = $_FILES['image']['tmp_name'];
 
-        $directory = "../files/images/";
+        $directory = "../files/rest_dp/";
         $dirname = "";
 
         $hold_tmp = explode('.', $_FILES['image']['name']);
@@ -80,25 +80,30 @@ class post_now
         return $dirname . $new_file_name;
     }
 
-    function push_post($media_name_with_dir, $content, $authorid, $saveTime, $title)
+    function push_post($name, $phone, $email, $address, $details, $media_name_with_dir, $owner_id, $map_lat, $map_lng)
     {
         include('../include/connection.php');
 
-        $sql = "INSERT INTO `posts` (`user_id`, `post`, `date_time`, `title`, `photo`) 
-        VALUES ('$authorid', '$content', '$saveTime', '$title', '$media_name_with_dir')";
+        $sql = "INSERT INTO `restaurants` (`name`, `phone`, `email`, `address`, `details`, `pro_pic`, `owner_id`, `map_lat`, `map_lng`) 
+        VALUES ('$name', '$phone', '$email', '$address', '$details', '$media_name_with_dir', '$owner_id', '$map_lat', '$map_lng')";
 
         $res = mysqli_query($con, $sql);
     }
 
     function create_post()
     {
-        $title = $_POST['title'];
-        $content = $_POST['content'];
+        $name = $_POST['name'];
+        $phone = $_POST['phone'];
+        $email = $_POST['email'];
+        $address = $_POST['address'];
+        $details = $_POST['details'];
+        $owner_id = $_SESSION['logid'];
+
+        $map_lat = $_POST['map_lat'];
+        $map_lng = $_POST['map_lng'];
+
         $media_name = "";
         $media_name_with_dir = "";
-        $authorid = $_SESSION['logid'];
-        $today = new DateTime("now", new DateTimeZone('Asia/Dhaka'));
-        $saveTime =  $today->format('h:i A|Y/m/d');
 
         $post_sub = true;
 
@@ -116,35 +121,9 @@ class post_now
         if ($post_sub == true) {
             echo "<h1>Post Success</h1>";
 
-            $this->push_post($media_name_with_dir, $content, $authorid, $saveTime, $title);
+            $this->push_post($name, $phone, $email, $address, $details, $media_name_with_dir, $owner_id, $map_lat, $map_lng);
         } else {
             echo "<h1>File format or size error</h1>";
-        }
-    }
-
-    function create_text_only_post()
-    {
-        include('../include/connection.php');
-
-        $title = $_POST['title'];
-        $content = $_POST['content'];
-        $authorid = $_SESSION['logid'];
-        $today = new DateTime("now", new DateTimeZone('Asia/Dhaka'));
-        $saveTime =  $today->format('h:i A|Y/m/d');
-
-
-        $sql = "INSERT INTO `posts` (`user_id`, `post`, `date_time`, `title`, `photo`) 
-        VALUES ('$authorid', '$content', '$saveTime', '$title', 'NoFile')";
-
-        $res = mysqli_query($con, $sql);
-
-
-        if ($res == true) {
-            echo "<h1>Post Success</h1>";
-            header('Refresh: 3; URL=../blog.php');
-        } else {
-            echo "<h1>Post Failed</h1>";
-            header('Refresh: 3; URL=../blog.php');
         }
     }
 }
@@ -153,14 +132,12 @@ class post_now
 if (isset($_SESSION['logid'])) {
     $obj = new post_now();
 
-    if ($_FILES['image']['name'] == "") {
-        $obj->create_text_only_post();
-    } else if ($_FILES['image']['name'] != "") {
+    if ($_FILES['image']['name'] != "") {
         $obj->create_post();
-        header('Refresh: 3; URL=../blog.php');
+        header('Refresh: 3; URL=../all.php');
     } else {
-        echo "<h1>Post Failed</h1>";
-        header('Refresh: 3; URL=../blog.php');
+        echo "<h1>Add Failed</h1>";
+        header('Refresh: 3; URL=../all.php');
     }
 } else {
     header('Location: ../login.php');
@@ -181,7 +158,7 @@ if (isset($_SESSION['logid'])) {
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap" rel="stylesheet" />
-    <title>Posting.....</title>
+    <title>Adding.....</title>
 
 
     <style>

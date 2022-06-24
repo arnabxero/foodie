@@ -9,10 +9,17 @@ $tab_active_1 = "";
 $tab_active_2 = "";
 $tab_active_3 = "";
 
+$admin_btn_disp = "display: none;";
+
 if (!(isset($_SESSION['logid']))) {
     header('Location: login.php');
 } else {
     $id = $_SESSION['logid'];
+}
+
+
+if ($_SESSION['rank'] == 'admin') {
+    $admin_btn_disp = "";
 }
 
 if (isset($_GET['show'])) {
@@ -208,6 +215,12 @@ if (isset($_FILES['image'])) {
                             <i class="fa fa-envelope"></i> Log Out
                         </a>
                     </div>
+                    <div class="profile-message-btn center-block text-center" style="<?= $admin_btn_disp ?>">
+                        <br>
+                        <a href="admin/index.php" class="btn btn-danger">
+                            <i class="fa fa-gear"></i> Admin Panel
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -263,12 +276,20 @@ if (isset($_FILES['image'])) {
                                     <?= $phone ?>
                                 </div>
                             </div>
+                            <div class="profile-user-details clearfix">
+                                <div class="profile-user-details-label">
+                                    Username
+                                </div>
+                                <div class="profile-user-details-value">
+                                    <?= $username ?>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-sm-4 profile-social">
                             <ul class="fa-ul">
-                                <li><i class="fa-li fa fa-twitter-square"></i><a href="#"><?= $twitter ?></a></li>
-                                <li><i class="fa-li fa fa-facebook-square"></i><a href="#"><?= $fb ?></a></li>
-                                <li><i class="fa-li fa fa-instagram"></i><a href="#"><?= $instagram ?></a></li>
+                                <li><i class="fa-li fa fa-twitter-square"></i><a href="https://www.twitter.com/<?= $twitter ?>"><?= $twitter ?></a></li>
+                                <li><i class="fa-li fa fa-facebook-square"></i><a href="https://www.facebook.com/<?= $fb ?>"><?= $fb ?></a></li>
+                                <li><i class="fa-li fa fa-instagram"></i><a href="https://www.instagram.com/<?= $instagram ?>"><?= $instagram ?></a></li>
                             </ul>
                         </div>
                     </div>
@@ -292,6 +313,7 @@ if (isset($_FILES['image'])) {
                                 $obj->postlist_creation($_SESSION['logid']);
                             } else if ($_GET['show'] == 'reviews') {
                             } else if ($_GET['show'] == 'restaurants') {
+                                $obj->restlist_creation($_SESSION['logid']);
                             } else {
                                 $obj->postlist_creation($_SESSION['logid']);
                             }
