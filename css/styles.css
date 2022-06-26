@@ -112,6 +112,13 @@ html {
   font-size: 12px;
 }
 
+.non-time-text {
+  font-weight: bold;
+  color: gray;
+  font-size: 12px;
+}
+
+
 .up-file-dp {
   width: 100%;
   margin-bottom: 20px;
@@ -170,7 +177,7 @@ html {
 }
 
 .test {
-  color: rgb(255, 103, 103);
+  color: rgb(214, 175, 0);
 }
 
 .like-btn {

@@ -21,6 +21,25 @@ if (isset($_SESSION['logid'])) {
    $display = "display:none;";
 }
 
+function show_star($stars)
+{
+   $star_icon = '<i class="fa fa-star-o"></i>';
+
+   if ($stars == 0) {
+      $star_icon = '<i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+   } else if ($stars == 1) {
+      $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+   } else if ($stars == 2) {
+      $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+   } else if ($stars == 3) {
+      $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+   } else if ($stars == 4) {
+      $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i>';
+   } else if ($stars == 5) {
+      $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>';
+   }
+   return $star_icon;
+}
 
 function get_user_details($uid)
 {
@@ -158,13 +177,25 @@ if ($owner_id == $id) {
                   <hr>
                   <span>
 
-                     <i class="fa fa-star"></i>
-                     <i class="fa fa-star"></i>
-                     <i class="fa fa-star"></i>
-                     <i class="fa fa-star"></i>
+                     <?php
+                     $rev_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id'";
+                     $rev_res = mysqli_query($con, $rev_sql);
+                     $total_reviews = mysqli_num_rows($rev_res);
+                     $avg_rate = 0;
+
+                     while ($rev_row = mysqli_fetch_assoc($rev_res)) {
+                        $avg_rate = $avg_rate + $rev_row['rate'];
+                     }
+                     if ($total_reviews > 0) {
+                        $avg_rate = $avg_rate / $total_reviews;
+                     }
+
+                     $floored_rate = number_format($avg_rate, 0);
+                     echo show_star($floored_rate);
+
+                     ?>
                   </span>
 
-                  <i class="fa fa-star-o"></i>
 
                </h1>
 
@@ -175,6 +206,20 @@ if ($owner_id == $id) {
    </div>
 
 
+   <?php
+   $rev_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id'";
+   $rev_res = mysqli_query($con, $rev_sql);
+   $total_reviews = mysqli_num_rows($rev_res);
+   $avg_rate = 0;
+
+   while ($rev_row = mysqli_fetch_assoc($rev_res)) {
+      $avg_rate = $avg_rate + $rev_row['rate'];
+   }
+   if ($total_reviews > 0) {
+      $avg_rate = $avg_rate / $total_reviews;
+   }
+
+   ?>
 
    <!-- product section -->
    <section class="product_section layout_padding">
@@ -187,6 +232,9 @@ if ($owner_id == $id) {
          <div class="row">
             <div class="col-sm-6">
                <div style="text-align:center;">
+                  <h6><strong>Total Reviews: <?= $total_reviews ?></strong></h6>
+                  <h6><strong>Average Rating: <?= number_format($avg_rate, 1) ?> <i class="fa fa-star"></i></strong></h6>
+                  <hr>
                   <h6>Phone: <?= $phone ?></h6>
                   <h6>Email: <?= $email ?></h6>
                   <h6>Address: <?= $address ?></h6>
@@ -279,15 +327,17 @@ if ($owner_id == $id) {
                <h1>All Reviews</h1>
 
                <?php
-               $post_id = '7';
 
-               $cmnt_sql = "SELECT * FROM comments WHERE post_id = '$post_id' ORDER BY id DESC";
+               $cmnt_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id' ORDER BY id DESC";
                $cmnt_res = mysqli_query($con, $cmnt_sql);
 
+               if ($total_reviews == 0) {
+                  echo '<h3>No Reviews Yet</h3>';
+               }
                while ($row = mysqli_fetch_assoc($cmnt_res)) {
 
                   $user_row = get_user_details($row['user_id']);
-                  $comment = $row['content'];
+                  $comment = $row['review'];
                   $time = $row['time'];
                   $user_name = $user_row['first_name'] . " " . $user_row['last_name'];
 
@@ -296,7 +346,7 @@ if ($owner_id == $id) {
                      $cmnt_edit_btn = "";
                   }
                   echo '
-                    <div class="col-md-6 offset-md-3" style="margin-top: 10px; margin-bottom:10px; border: 1px solid black; background-color:aliceblue; color:black; padding:15px; border-radius:15px;">
+                    <div class="col-md-6 offset-md-3" style="  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); margin-top: 10px; margin-bottom:10px; border: 0px solid black; background-color:white; color:black; padding:15px; border-radius:15px;">
                         <div class="subscribe_form ">
                             <div class="heading_container heading_center">
                                 <a href="view_profile.php?id=' . $row['user_id'] . '">
@@ -309,6 +359,8 @@ if ($owner_id == $id) {
                                 <a href="subdir/edit_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
                                 <a href="subdir/delete_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
                             </div>
+                            <hr>
+                            <p>Rated: ' . $row['rate'] . ' ' . show_star($row['rate']) . '</p>
                             <hr>
                             <p>' . $comment . '</p>
                         </div>
@@ -341,7 +393,7 @@ if ($owner_id == $id) {
 
    <script>
       function showVal(newVal) {
-         document.getElementById("showrate").innerHTML = "Rating: " + newVal + ' <i class="fa fa-star" style="color: #ffc000;"></i>';
+         document.getElementById("showrate").innerHTML = "Rating: " + newVal + ' <i class="fa fa-star" style="color: #4d4814;"></i>';
       }
    </script>
 
@@ -356,19 +408,19 @@ if ($owner_id == $id) {
                         <h3>Review</h3>
                      </div>
                      <p>Write your review & rate this restaurant!</p>
-                     <form action="subdir/comment_now.php" method="POST">
-                        <input type="hidden" name="post_id" value="<?= $post_id ?>" />
-                        <input type="hidden" name="user_id" value="<?= $id ?>" />
+                     <form action="subdir/review_sub.php" method="POST">
+                        <input type="hidden" name="rest_id" value="<?= $_GET['id'] ?>" />
+                        <input type="hidden" name="user_id" value="<?= $_SESSION['logid'] ?>" />
 
 
                         <h1 id="showrate">0</h1>
-                        <input type="range" id="rate" name="rate" min="0" max="5" value="0" step="0.5" onchange="showVal(this.value)">
+                        <input type="range" id="rate" name="rate" min="0" max="5" value="0" step="1" onchange="showVal(this.value)">
 
-                        <textarea name="content" class="one textbox" rows="10" cols="90" placeholder="Write your comment..."></textarea><br>
+                        <textarea name="content" class="one textbox" rows="10" cols="90" placeholder="Write your review..."></textarea><br>
 
                         <button type="button" class="emoji-btn"><i class="fas fa-grin"></i> Insert Emojies <i class="fas fa-grin-beam"></i></button>
 
-                        <input type="submit" style="color: black; text-align:center;" value="Comment Now">
+                        <input type="submit" style="color: black; text-align:center;" value="Submit Review">
                      </form>
 
                   </div>

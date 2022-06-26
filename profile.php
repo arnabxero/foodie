@@ -312,6 +312,7 @@ if (isset($_FILES['image'])) {
                             if ($_GET['show'] == 'postlist') {
                                 $obj->postlist_creation($_SESSION['logid']);
                             } else if ($_GET['show'] == 'reviews') {
+                                $obj->revlist_creation($_SESSION['logid']);
                             } else if ($_GET['show'] == 'restaurants') {
                                 $obj->restlist_creation($_SESSION['logid']);
                             } else {
