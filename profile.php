@@ -176,6 +176,12 @@ if (isset($_FILES['image'])) {
                         <br>
 
                         <script>
+                            if (window.history.replaceState) {
+                                window.history.replaceState(null, null, window.location.href);
+                            }
+                        </script>
+
+                        <script>
                             const targetDiv = document.getElementById("upl");
                             const btn = document.getElementById("toggle");
                             btn.onclick = function() {

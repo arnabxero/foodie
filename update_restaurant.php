@@ -2,13 +2,15 @@
 include('include/connection.php');
 session_start();
 
+if (!(isset($_SESSION['logid']))) {
+    header('Location: login.php');
+}
+
 $name = "Guest";
 $id = "-99";
 $profile_link = "login.php";
 $profile_photo = "webcon.png";
 $display = "";
-$own_vis = "display:none;";
-$post_id = $_GET['id'];
 
 if (isset($_SESSION['logid'])) {
     $id = $_SESSION['logid'];
@@ -34,62 +36,23 @@ function get_user_details($uid)
     return $row;
 }
 
-function check_post_ownership($auhtor_id, $user_id)
-{
-    if ($auhtor_id == $user_id) {
-        return true;
-    }
-    return false;
-}
 
 
+$rest_id = $_GET['id'];
 
-//////////////////////////////////////////////////////
-if (!(isset($_GET['id']))) {
-    header('Location: blog.php');
-}
-$post_id = $_GET['id'];
-
-$sql = "SELECT * FROM posts WHERE id = '$post_id'";
+$sql = "SELECT * FROM restaurants WHERE id = '$rest_id'";
 $res = mysqli_query($con, $sql);
-$row = mysqli_fetch_array($res);
+$rest_row = mysqli_fetch_array($res);
 
-$title = $row['title'];
-$content = $row['post'];
-$time = $row['date_time'];
-$auhtor_id = $row['user_id'];
-$user_row = get_user_details($auhtor_id);
-$author_name = $user_row['first_name'] . " " . $user_row['last_name'];
-$image_link = "files/images/" . $row['photo'];
-
-
+$rest_name = $rest_row['name'];
+$rest_details = $rest_row['details'];
+$rest_phone = $rest_row['phone'];
+$rest_email = $rest_row['email'];
+$rest_address = $rest_row['address'];
+$rest_lat = $rest_row['map_lat'];
+$rest_lng = $rest_row['map_lng'];
 
 
-if (isset($_SESSION['logid'])) {
-    if (check_post_ownership($auhtor_id, $_SESSION['logid'])) {
-        $own_vis = "";
-    }
-}
-
-$total_likes = 0;
-
-$like_link = "subdir/operate_like.php?post_id=" . $post_id . "&user_id=" . $id . "&operation=add";
-$like_color = "color:black;";
-$like_icon = '<i class="fa fa-heart-o" style="color:red;"></i> I Liked This Post';
-
-$like_sql = "SELECT * FROM likes WHERE user_id = '$id' AND post_id = '$post_id'";
-$like_res = mysqli_query($con, $like_sql);
-$like_c = mysqli_num_rows($like_res);
-
-if ($like_c > 0) {
-    $like_link = "subdir/operate_like.php?post_id=" . $post_id . "&user_id=" . $id . "&operation=rem";
-    $like_color = "color:red;";
-    $like_icon = '<i class="fa fa-heart" style="color:red;"></i> I Dislike This Post';
-}
-
-$like_sql = "SELECT * FROM likes WHERE post_id = '$post_id'";
-$like_res = mysqli_query($con, $like_sql);
-$total_likes = mysqli_num_rows($like_res);
 ?>
 
 
@@ -115,9 +78,19 @@ $total_likes = mysqli_num_rows($like_res);
     <link href="css/font-awesome.min.css" rel="stylesheet" />
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
+    <link href="css/styles.css" rel="stylesheet" />
     <!-- responsive style -->
     <link href="css/responsive.css" rel="stylesheet" />
+
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUUoZJ6e4Wlwp6S7X8JojEEXHtaCe4hlI"></script>
+    <script src="https://unpkg.com/location-picker/dist/location-picker.min.js"></script>
+    <style type="text/css">
+        #map {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
 </head>
 
 <style>
@@ -148,10 +121,10 @@ $total_likes = mysqli_num_rows($like_res);
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item active">
                             <a class="nav-link" href="all.php">All</a>
                         </li>
-                        <li class="nav-item active">
+                        <li class="nav-item">
                             <a class="nav-link" href="blog.php">Blog</a>
                         </li>
                         <li class="nav-item">
@@ -174,20 +147,9 @@ $total_likes = mysqli_num_rows($like_res);
         <div class="container_fuild">
             <div class="row">
                 <div class="col-md-12">
-                    <h4><?= $title ?></h4>
-                    <h6><?= $author_name ?></h6>
-                    <p><?= $time ?></p>
-
-                    <div style="<?= $own_vis ?>">
-                        <hr>
-                        <a href="edit_post.php?id=<?= $post_id ?>" class="blog-edit-a">
-                            Edit
-                        </a>
-                        <a href="delete_post.php?id=<?= $post_id ?>" class="blog-edit-a">
-                            Delete
-                        </a>
+                    <div class="full">
+                        <h3>Update Your Restaurant Info</h3>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -195,134 +157,81 @@ $total_likes = mysqli_num_rows($like_res);
     <!-- end inner page section -->
     <!-- why section -->
     <section class="why_section layout_padding">
-        <div style="text-align:center;">
-            <div class="container">
+        <div class="container">
 
-                <?= $content ?>
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="full">
+                        <form action="subdir/update_rest.php" method="POST" enctype="multipart/form-data">
+                            <fieldset>
+                                <input type="hidden" value="<?= $rest_id ?>" name="rest_id" />
+                                <label>Restaurant Name</label>
+                                <input type="text" placeholder="Enter Restaurant Name" name="name" value="<?= $rest_name ?>" required />
+                                <label>Restaurant Phone Number</label>
+                                <input type="text" placeholder="Enter Restaurant Phone Number" name="phone" value="<?= $rest_phone ?>" required />
+                                <label>Restaurant Email Address</label>
+                                <input type="email" placeholder="Enter Restaurant Email Address" name="email" value="<?= $rest_email ?>" required />
+                                <label>Address</label>
+                                <textarea class="post-content-area" name="address" cols="50" rows="5" placeholder="Enter Your Restaurant Address!" required><?= $rest_address ?></textarea>
+                                <br>
+                                <label>Details</label>
+                                <textarea class="post-content-area" name="details" cols="50" rows="10" placeholder="Enter Your Restaurant Details!" required><?= $rest_details ?></textarea>
+                                <br>
+                                <!--<div class="up-file-dp">
+                                    <label>Add Your restaurant's Cover Photo</label>
+                                    <input type="file" name="image" required />
+                                </div>-->
+
+                                <div id="map"></div>
+
+                                <br>
+                                <button type="button" id="confirmPosition">Confirm Position</button>
+                                <br>
+                                <p>Pointed Location: <span id="onIdlePositionView"></span></p>
+                                <p>Choosen Location: <span id="onClickPositionView"><?= $rest_lat ?>, <?= $rest_lng ?></span></p>
+
+                                <input placeholder="Map Lattitude" id="input_map_lat" value="<?= $rest_lat ?>" name="map_lat" />
+
+                                <input placeholder="Map Longitude" id="input_map_lng" value="<?= $rest_lng ?>" name="map_lng" />
+
+                                <script>
+                                    var confirmBtn = document.getElementById('confirmPosition');
+                                    var onClickPositionView = document.getElementById('onClickPositionView');
+                                    var onIdlePositionView = document.getElementById('onIdlePositionView');
+
+                                    var lp = new locationPicker('map', {
+                                        setCurrentPosition: true,
+                                    }, {
+                                        zoom: 15
+                                    });
+
+                                    confirmBtn.onclick = function() {
+                                        var location = lp.getMarkerPosition();
+                                        onClickPositionView.innerHTML = location.lat + ',' + location.lng;
+                                        document.getElementById("input_map_lat").value = location.lat;
+                                        document.getElementById("input_map_lng").value = location.lng;
+                                    };
+
+                                    google.maps.event.addListener(lp.map, 'idle', function(event) {
+                                        var location = lp.getMarkerPosition();
+                                        onIdlePositionView.innerHTML = location.lat + ',' + location.lng;
+                                    });
+                                </script>
+
+
+
+                                <br>
+                                <input type="submit" value="Update" name="submit" />
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
             </div>
-
-            <hr>
-            <img src="<?= $image_link ?>" style="max-height: 500px;">
 
         </div>
     </section>
     <!-- end why section -->
 
-
-    <!-- subscribe section -->
-    <section class="subscribe_section">
-        <div class="container-fuild">
-            <div class="box">
-                <div class="row">
-                    <div class="col-md-6 offset-md-3">
-                        <div class="subscribe_form ">
-                            <div class="heading_container heading_center">
-
-                                <a href="<?= $like_link ?>">
-                                    <div class="like-btn" style="<?= $like_color ?>">
-                                        <h1><?= $like_icon ?></h1>
-                                    </div>
-                                </a>
-                                <br>
-                                <hr>
-                                <h3>Total Likes: <?= $total_likes ?> <i class="fa fa-heart" style="color:red;"></i></h3>
-
-                                <hr>
-                                <h3>Comments</h3>
-                            </div>
-                            <p>Write your comment about this blog post!</p>
-                            <form action="subdir/comment_now.php" method="POST">
-                                <input type="hidden" name="post_id" value="<?= $post_id ?>" />
-                                <input type="hidden" name="user_id" value="<?= $id ?>" />
-
-                                <textarea name="content" class="one textbox" rows="10" cols="90" placeholder="Write your comment..."></textarea><br>
-
-                                <button type="button" class="emoji-btn"><i class="fas fa-grin"></i> Insert Emojies <i class="fas fa-grin-beam"></i></button>
-
-                                <input type="submit" style="color: black; text-align:center;" value="Comment Now">
-                            </form>
-
-                        </div>
-                    </div>
-
-                </div>
-                <hr>
-
-            </div>
-        </div>
-    </section>
-    <!-- end subscribe section -->
-
-    <!-- subscribe section -->
-    <section class="subscribe_section">
-        <div class="container-fuild">
-            <div class="box">
-
-
-                <h1>All Comments</h1>
-
-                <?php
-
-
-                $cmnt_sql = "SELECT * FROM comments WHERE post_id = '$post_id' ORDER BY id DESC";
-                $cmnt_res = mysqli_query($con, $cmnt_sql);
-
-                while ($row = mysqli_fetch_assoc($cmnt_res)) {
-                    $user_row = get_user_details($row['user_id']);
-
-                    $comment = $row['content'];
-                    $time = $row['time'];
-                    $user_name = $user_row['first_name'] . " " . $user_row['last_name'];
-
-                    $cmnt_edit_btn = "display: none;";
-                    if ($_SESSION['logid'] == $row['user_id']) {
-                        $cmnt_edit_btn = "";
-                    }
-
-                    echo '
-                    <div class="col-md-6 offset-md-3" style="margin-top: 10px; margin-bottom:10px; border: 1px solid black; background-color:aliceblue; color:black; padding:15px; border-radius:15px;">
-                        <div class="subscribe_form ">
-                            <div class="heading_container heading_center">
-                                <a href="view_profile.php?id=' . $row['user_id'] . '">
-                                <h4>' . $user_name . '</h4>
-                                </a>
-                                <p style="font-style:italic; font-size: 10px;">' . $time . '</p>
-
-                            </div>
-
-                            <div style="' . $cmnt_edit_btn . '  font-size: 10px;">
-                            <hr>
-                                <a href="edit_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
-                                <a href="delete_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
-                            </div>
-                            <hr>
-
-                            <p>' . $comment . '</p>
-                        </div>
-                    </div>
-                    ';
-                }
-
-
-                ?>
-
-
-            </div>
-        </div>
-    </section>
-    <!-- end subscribe section -->
-
-
-    <script src="assets/emoji/vanillaEmojiPicker.js"></script>
-    <script>
-        new EmojiPicker({
-            trigger: [{
-                selector: '.emoji-btn',
-                insertInto: ['.one', '.two']
-            }],
-            closeButton: true,
-        });
-    </script>
 
 
     <!-- footer start -->

@@ -2,13 +2,26 @@
 include('include/connection.php');
 session_start();
 
+if (!isset($_SESSION['logid'])) {
+    header('Location: login.php');
+}
+
+$comment_id = $_GET['id'];
+
+$sql = "SELECT * FROM comments WHERE id = '$comment_id'";
+$res = mysqli_query($con, $sql);
+$row = mysqli_fetch_array($res);
+
+$content = $row['content'];
+
+
+
+
 $name = "Guest";
 $id = "-99";
 $profile_link = "login.php";
 $profile_photo = "webcon.png";
 $display = "";
-$own_vis = "display:none;";
-$post_id = $_GET['id'];
 
 if (isset($_SESSION['logid'])) {
     $id = $_SESSION['logid'];
@@ -22,77 +35,7 @@ if (isset($_SESSION['logid'])) {
     $profile_photo = $row['pro_pic'];
     $display = "display:none;";
 }
-
-function get_user_details($uid)
-{
-    include('include/connection.php');
-
-    $sql_user_details = "SELECT * FROM users WHERE id = '$uid'";
-    $res = mysqli_query($con, $sql_user_details);
-    $row = mysqli_fetch_array($res);
-
-    return $row;
-}
-
-function check_post_ownership($auhtor_id, $user_id)
-{
-    if ($auhtor_id == $user_id) {
-        return true;
-    }
-    return false;
-}
-
-
-
-//////////////////////////////////////////////////////
-if (!(isset($_GET['id']))) {
-    header('Location: blog.php');
-}
-$post_id = $_GET['id'];
-
-$sql = "SELECT * FROM posts WHERE id = '$post_id'";
-$res = mysqli_query($con, $sql);
-$row = mysqli_fetch_array($res);
-
-$title = $row['title'];
-$content = $row['post'];
-$time = $row['date_time'];
-$auhtor_id = $row['user_id'];
-$user_row = get_user_details($auhtor_id);
-$author_name = $user_row['first_name'] . " " . $user_row['last_name'];
-$image_link = "files/images/" . $row['photo'];
-
-
-
-
-if (isset($_SESSION['logid'])) {
-    if (check_post_ownership($auhtor_id, $_SESSION['logid'])) {
-        $own_vis = "";
-    }
-}
-
-$total_likes = 0;
-
-$like_link = "subdir/operate_like.php?post_id=" . $post_id . "&user_id=" . $id . "&operation=add";
-$like_color = "color:black;";
-$like_icon = '<i class="fa fa-heart-o" style="color:red;"></i> I Liked This Post';
-
-$like_sql = "SELECT * FROM likes WHERE user_id = '$id' AND post_id = '$post_id'";
-$like_res = mysqli_query($con, $like_sql);
-$like_c = mysqli_num_rows($like_res);
-
-if ($like_c > 0) {
-    $like_link = "subdir/operate_like.php?post_id=" . $post_id . "&user_id=" . $id . "&operation=rem";
-    $like_color = "color:red;";
-    $like_icon = '<i class="fa fa-heart" style="color:red;"></i> I Dislike This Post';
-}
-
-$like_sql = "SELECT * FROM likes WHERE post_id = '$post_id'";
-$like_res = mysqli_query($con, $like_sql);
-$total_likes = mysqli_num_rows($like_res);
 ?>
-
-
 
 <!DOCTYPE html>
 <html>
@@ -108,7 +51,7 @@ $total_likes = mysqli_num_rows($like_res);
     <meta name="description" content="" />
     <meta name="author" content="" />
     <link rel="shortcut icon" href="files/icons/webcon.png" type="">
-    <title>FOODIE</title>
+    <title>Comment Editing...</title>
     <!-- bootstrap core css -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
     <!-- font awesome style -->
@@ -174,41 +117,14 @@ $total_likes = mysqli_num_rows($like_res);
         <div class="container_fuild">
             <div class="row">
                 <div class="col-md-12">
-                    <h4><?= $title ?></h4>
-                    <h6><?= $author_name ?></h6>
-                    <p><?= $time ?></p>
-
-                    <div style="<?= $own_vis ?>">
-                        <hr>
-                        <a href="edit_post.php?id=<?= $post_id ?>" class="blog-edit-a">
-                            Edit
-                        </a>
-                        <a href="delete_post.php?id=<?= $post_id ?>" class="blog-edit-a">
-                            Delete
-                        </a>
+                    <div class="full">
+                        <h3>Edit Your Blog Comment</h3>
                     </div>
-
                 </div>
             </div>
         </div>
     </section>
     <!-- end inner page section -->
-    <!-- why section -->
-    <section class="why_section layout_padding">
-        <div style="text-align:center;">
-            <div class="container">
-
-                <?= $content ?>
-            </div>
-
-            <hr>
-            <img src="<?= $image_link ?>" style="max-height: 500px;">
-
-        </div>
-    </section>
-    <!-- end why section -->
-
-
     <!-- subscribe section -->
     <section class="subscribe_section">
         <div class="container-fuild">
@@ -217,101 +133,21 @@ $total_likes = mysqli_num_rows($like_res);
                     <div class="col-md-6 offset-md-3">
                         <div class="subscribe_form ">
                             <div class="heading_container heading_center">
+                                <form action="subdir/comment_edit_sub.php" method="POST">
+                                    <input type="hidden" name="comment_id" value="<?= $comment_id ?>" />
 
-                                <a href="<?= $like_link ?>">
-                                    <div class="like-btn" style="<?= $like_color ?>">
-                                        <h1><?= $like_icon ?></h1>
-                                    </div>
-                                </a>
-                                <br>
-                                <hr>
-                                <h3>Total Likes: <?= $total_likes ?> <i class="fa fa-heart" style="color:red;"></i></h3>
-
-                                <hr>
-                                <h3>Comments</h3>
+                                    <textarea name="content" class="one textbox" rows="10" cols="90" placeholder="Update your comment..."><?= $content ?></textarea><br>
+                                    <button type="button" class="emoji-btn"><i class="fas fa-grin"></i> Insert Emojies <i class="fas fa-grin-beam"></i></button>
+                                    <input type="submit" style="color: black; text-align:center;" value="Update Comment">
+                                </form>
                             </div>
-                            <p>Write your comment about this blog post!</p>
-                            <form action="subdir/comment_now.php" method="POST">
-                                <input type="hidden" name="post_id" value="<?= $post_id ?>" />
-                                <input type="hidden" name="user_id" value="<?= $id ?>" />
-
-                                <textarea name="content" class="one textbox" rows="10" cols="90" placeholder="Write your comment..."></textarea><br>
-
-                                <button type="button" class="emoji-btn"><i class="fas fa-grin"></i> Insert Emojies <i class="fas fa-grin-beam"></i></button>
-
-                                <input type="submit" style="color: black; text-align:center;" value="Comment Now">
-                            </form>
-
                         </div>
                     </div>
-
+                    <hr>
                 </div>
-                <hr>
-
             </div>
-        </div>
     </section>
     <!-- end subscribe section -->
-
-    <!-- subscribe section -->
-    <section class="subscribe_section">
-        <div class="container-fuild">
-            <div class="box">
-
-
-                <h1>All Comments</h1>
-
-                <?php
-
-
-                $cmnt_sql = "SELECT * FROM comments WHERE post_id = '$post_id' ORDER BY id DESC";
-                $cmnt_res = mysqli_query($con, $cmnt_sql);
-
-                while ($row = mysqli_fetch_assoc($cmnt_res)) {
-                    $user_row = get_user_details($row['user_id']);
-
-                    $comment = $row['content'];
-                    $time = $row['time'];
-                    $user_name = $user_row['first_name'] . " " . $user_row['last_name'];
-
-                    $cmnt_edit_btn = "display: none;";
-                    if ($_SESSION['logid'] == $row['user_id']) {
-                        $cmnt_edit_btn = "";
-                    }
-
-                    echo '
-                    <div class="col-md-6 offset-md-3" style="margin-top: 10px; margin-bottom:10px; border: 1px solid black; background-color:aliceblue; color:black; padding:15px; border-radius:15px;">
-                        <div class="subscribe_form ">
-                            <div class="heading_container heading_center">
-                                <a href="view_profile.php?id=' . $row['user_id'] . '">
-                                <h4>' . $user_name . '</h4>
-                                </a>
-                                <p style="font-style:italic; font-size: 10px;">' . $time . '</p>
-
-                            </div>
-
-                            <div style="' . $cmnt_edit_btn . '  font-size: 10px;">
-                            <hr>
-                                <a href="edit_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
-                                <a href="delete_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
-                            </div>
-                            <hr>
-
-                            <p>' . $comment . '</p>
-                        </div>
-                    </div>
-                    ';
-                }
-
-
-                ?>
-
-
-            </div>
-        </div>
-    </section>
-    <!-- end subscribe section -->
-
 
     <script src="assets/emoji/vanillaEmojiPicker.js"></script>
     <script>

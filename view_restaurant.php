@@ -304,8 +304,170 @@ if ($owner_id == $id) {
                <div class="col-md-6 offset-md-3">
                   <div class="subscribe_form ">
                      <form>
+                        <button id="toggle2" type="button">
+                           View The Menu <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                        </button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </section>
+
+
+
+   <!-- subscribe section -->
+   <div class="cdp-form" id="upl2" style="display: none;">
+      <section class="subscribe_section">
+         <div class="container-fuild">
+            <div class="box">
+
+
+               <h1>All Menu</h1>
+
+               <?php
+
+               function check_restaurant_owner($rest_id)
+               {
+                  include('include/connection.php');
+
+                  $sql = "SELECT * FROM restaurants WHERE id = '$rest_id'";
+                  $res = mysqli_query($con, $sql);
+                  $row = mysqli_fetch_array($res);
+
+                  return $row['owner_id'];
+               }
+               $cmnt_sql = "SELECT * FROM menu WHERE rest_id = '$rest_id' ORDER BY id DESC";
+               $cmnt_res = mysqli_query($con, $cmnt_sql);
+
+               if ($total_reviews == 0) {
+                  echo '<h3>No Items Yet</h3>';
+               }
+               while ($row = mysqli_fetch_assoc($cmnt_res)) {
+
+                  $menu_name = $row['name'];
+                  $menu_price = $row['price'];
+
+                  $menu_edit_btn = "display: none;";
+                  if ($_SESSION['logid'] == check_restaurant_owner($rest_id)) {
+                     $menu_edit_btn = "";
+                  }
+                  echo '
+                    <div class="col-md-12" style="  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); margin-top: 10px; margin-bottom:10px; border: 0px solid black; background-color:white; color:black; padding:15px; border-radius:5px;">
+                        <div class="subscribe_form ">
+                            <div class="heading_container heading_center">
+                                <h4>' . $menu_name . '</h4>
+                            </div>
+                            <hr>
+                            <p>' . $menu_price . '</p>
+                            <div style="' . $menu_edit_btn . '  font-size: 10px;">
+                            <hr>
+                                <a href="update_menu.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
+                                <a href="delete_menu.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
+                            </div>
+                  
+                            
+                        </div>
+                    </div>
+                    ';
+               }
+               ?>
+            </div>
+         </div>
+      </section>
+   </div>
+
+   <?php
+   $add_menu_btn = "display: none;";
+   if ($_SESSION['logid'] == check_restaurant_owner($rest_id)) {
+      $add_menu_btn = "";
+   }
+   ?>
+
+   <div style="<?= $add_menu_btn ?>">
+      <section class="subscribe_section">
+         <div class="container-fuild">
+            <div class="box" style="background-color: white; padding-top: 0px;">
+               <div class="row">
+                  <div class="col-md-6 offset-md-3">
+                     <div class="subscribe_form ">
+                        <form>
+                           <button id="toggle3" type="button">
+                              Add Menu Item <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                           </button>
+                        </form>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+   </div>
+
+   <!-- subscribe section -->
+   <div class="cdp-form" id="upl3" style="display: none;">
+      <section class="subscribe_section">
+         <div class="container-fuild">
+            <div class="box">
+
+
+               <h1>Add New Menu Item</h1>
+               <hr>
+
+               <script>
+                  if (window.history.replaceState) {
+                     window.history.replaceState(null, null, window.location.href);
+                  }
+               </script>
+
+               <?php
+               if (isset($_POST['menu_submit'])) {
+                  $menu_rest_id = $_POST['rest_id'];
+                  $menu_item_name = $_POST['item_name'];
+                  $menu_item_price = $_POST['item_price'];
+
+                  $sql = "INSERT INTO `menu` (`rest_id`, `name`, `price`) VALUES ('$menu_rest_id', '$menu_item_name', '$menu_item_price')";
+                  $res = mysqli_query($con, $sql);
+               }
+               ?>
+
+               <form method="POST">
+                  <fieldset>
+                     <input type="hidden" value="<?= $rest_id ?>" name="rest_id" />
+                     <h4>Menu Item Name</h4>
+                     <input type="text" placeholder="Enter Item Name" name="item_name" required />
+                     <h4>Price </h4>
+                     <input type="text" placeholder="Enter Price" name="item_price" id="showrate2" required />
+                     <input type="range" id="rate" name="rate" min="0" max="5000" value="0" step="1" onchange="showVal2(this.value)">
+
+                     <input type="submit" name="menu_submit" value="Add Item To The Menu" />
+                  </fieldset>
+               </form>
+
+            </div>
+         </div>
+      </section>
+   </div>
+
+   <script>
+      function showVal2(newVal) {
+         document.getElementById("showrate2").value = newVal + ' BDT';
+      }
+   </script>
+
+
+
+
+   <section class="subscribe_section">
+      <div class="container-fuild">
+         <div class="box" style="background-color: white; padding-top: 0px;">
+            <div class="row">
+               <div class="col-md-6 offset-md-3">
+                  <div class="subscribe_form ">
+                     <form>
                         <button id="toggle" type="button">
-                           View All Reviews!
+                           View All Reviews <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
                         </button>
                      </form>
                   </div>
@@ -356,8 +518,8 @@ if ($owner_id == $id) {
                             </div>
                             <div style="' . $cmnt_edit_btn . '  font-size: 10px;">
                             <hr>
-                                <a href="subdir/edit_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
-                                <a href="subdir/delete_comment.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
+                                <a href="edit_review.php?id=' . $row['id'] . '" class="blog-edit-a">Edit</a>
+                                <a href="delete_review.php?id=' . $row['id'] . '" class="blog-edit-a">Delete</a>
                             </div>
                             <hr>
                             <p>Rated: ' . $row['rate'] . ' ' . show_star($row['rate']) . '</p>
@@ -381,8 +543,46 @@ if ($owner_id == $id) {
       btn.onclick = function() {
          if (targetDiv.style.display !== "none") {
             targetDiv.style.display = "none";
+            btn.innerHTML = 'View All Reviews <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>';
          } else {
             targetDiv.style.display = "block";
+            btn.innerHTML = 'View All Reviews <i class="fa fa-chevron-circle-up" aria-hidden="true"></i>';
+         }
+      };
+   </script>
+
+
+
+   <script>
+      const targetDiv2 = document.getElementById("upl2");
+      const btn2 = document.getElementById("toggle2");
+      btn2.onclick = function() {
+         if (targetDiv2.style.display !== "none") {
+            targetDiv2.style.display = "none";
+            btn2.innerHTML = 'View The Menu <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>';
+
+         } else {
+            targetDiv2.style.display = "block";
+            btn2.innerHTML = 'View The Menu <i class="fa fa-chevron-circle-up" aria-hidden="true"></i>';
+
+         }
+      };
+   </script>
+
+
+
+   <script>
+      const targetDiv3 = document.getElementById("upl3");
+      const btn3 = document.getElementById("toggle3");
+      btn3.onclick = function() {
+         if (targetDiv3.style.display !== "none") {
+            targetDiv3.style.display = "none";
+            btn3.innerHTML = 'Add Menu Item <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>';
+
+         } else {
+            targetDiv3.style.display = "block";
+            btn3.innerHTML = 'Add Menu Item <i class="fa fa-chevron-circle-up" aria-hidden="true"></i>';
+
          }
       };
    </script>
@@ -427,7 +627,6 @@ if ($owner_id == $id) {
                </div>
 
             </div>
-            <hr>
 
          </div>
       </div>
@@ -447,30 +646,7 @@ if ($owner_id == $id) {
 
 
 
-   <!-- subscribe section -->
-   <section class="subscribe_section">
-      <div class="container-fuild">
-         <div class="box">
-            <div class="row">
-               <div class="col-md-6 offset-md-3">
-                  <div class="subscribe_form ">
-                     <div class="heading_container heading_center">
-                        <h3>Subscribe To Get Coupons and News</h3>
-                     </div>
-                     <p>Keep updated with restaurant opening events news, food reviews, recipes, party centers and many more!</p>
-                     <form action="subdir/subscribe.php" method="post">
-                        <input type="email" name="email" placeholder="Enter your email">
-                        <button>
-                           subscribe
-                        </button>
-                     </form>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-   </section>
-   <!-- end subscribe section -->
+
 
 
    <!-- footer start -->
