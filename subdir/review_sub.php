@@ -13,7 +13,29 @@ $rate = $_POST['rate'];
 $today = new DateTime("now", new DateTimeZone('Asia/Dhaka'));
 $saveTime =  $today->format('h:i A | Y/m/d');
 
+
+
 $sql = "INSERT INTO `reviews` (`user_id`, `rest_id`, `review`, `rate`, `time`) VALUES ('$user_id', '$rest_id', '$content', '$rate', '$saveTime')";
+$res = mysqli_query($con, $sql);
+
+
+
+$get_current_rate_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id'";
+$get_current_rate_res = mysqli_query($con, $get_current_rate_sql);
+$current_rate = 0;
+$c = mysqli_num_rows($get_current_rate_res);
+
+while ($get_cur_row = mysqli_fetch_assoc($get_current_rate_res)) {
+    $current_rate = $current_rate + $get_cur_row['rate'];
+}
+
+if ($c > 0) {
+    $current_rate = $current_rate / $c;
+}
+
+
+
+$sql = "UPDATE restaurants SET rate = $current_rate WHERE id = '$rest_id'";
 $res = mysqli_query($con, $sql);
 
 

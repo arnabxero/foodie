@@ -177,7 +177,7 @@ class searchNow
                             <div font-size: 10px;">
                             <hr>
                             <h6 style="padding: 20px;">Restaurant Name : ' . $rest_row['name'] . '</h6>
-                            <a href="update_menu.php?id=' . $rest_row['id'] . '" class="blog-edit-a" style="border-radius:5px; font-weight: normal; border: 1px solid black;">View Restaurant</a>
+                            <a href="view_restaurant.php?id=' . $rest_row['id'] . '" class="blog-edit-a" style="border-radius:5px; font-weight: normal; border: 1px solid black;">View Restaurant</a>
                                 
                             </div>
                         </div>

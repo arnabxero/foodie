@@ -23,10 +23,31 @@ if (isset($_SESSION['logid'])) {
 
 class Homepage
 {
+   function show_star($stars)
+   {
+      $star_icon = '<i class="fa fa-star-o"></i>';
+
+      if ($stars == 0) {
+         $star_icon = '<i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+      } else if ($stars == 1) {
+         $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+      } else if ($stars == 2) {
+         $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+      } else if ($stars == 3) {
+         $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>';
+      } else if ($stars == 4) {
+         $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i>';
+      } else if ($stars == 5) {
+         $star_icon = '<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>';
+      }
+      return $star_icon;
+   }
+
+
    function recomend()
    {
       include('include/connection.php');
-      $sql = "SELECT * FROM restaurants";
+      $sql = "SELECT * FROM restaurants ORDER BY rand()";
       $res = mysqli_query($con, $sql);
 
       $c = 0;
@@ -42,6 +63,28 @@ class Homepage
             $details = substr($details, 0, 30);
          }
 
+         $rest_id = $row['id'];
+
+         ///////////////////////////////
+         $rev_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id'";
+         $rev_res = mysqli_query($con, $rev_sql);
+         $total_reviews = mysqli_num_rows($rev_res);
+         $avg_rate = 0;
+
+         while ($rev_row = mysqli_fetch_assoc($rev_res)) {
+            $avg_rate = $avg_rate + $rev_row['rate'];
+         }
+         if ($total_reviews > 0) {
+            $avg_rate = $avg_rate / $total_reviews;
+         }
+
+
+         $floored_rate = number_format($avg_rate, 0);
+         $avg_rate = number_format($avg_rate, 1);
+
+         /////////////////////////////////
+
+
          echo '
          <div class="col-sm-6 col-md-4 col-lg-4">
                <div class="box">
@@ -56,12 +99,87 @@ class Homepage
                      <img src="files/rest_dp/' . $row['pro_pic'] . '" alt="">
                   </div>
                   <div class="detail-box">
-                     <h5>
-                        ' . $row['name'] . '
-                     </h5>
-                     <h6>
-                        ' . $row['name'] . '
-                     </h6>
+                   <h5>
+                                    ' . $row['name'] . '
+                                </h5>
+                                <h6>';
+
+         echo $this->show_star($floored_rate);
+         echo '<br>Rating: ' . $avg_rate . '
+
+                                </h6>
+                  </div>
+               </div>
+            </div>';
+
+         $c++;
+      }
+   }
+
+   function top()
+   {
+      include('include/connection.php');
+      $sql = "SELECT * FROM restaurants ORDER BY rate DESC";
+      $res = mysqli_query($con, $sql);
+
+      $c = 0;
+
+      while ($row = mysqli_fetch_assoc($res)) {
+
+         if ($c > 5) {
+            break;
+         }
+         $details = $row['details'];
+
+         if (strlen($details) > 30) {
+            $details = substr($details, 0, 30);
+         }
+
+         $rest_id = $row['id'];
+
+         ///////////////////////////////
+         $rev_sql = "SELECT * FROM reviews WHERE rest_id = '$rest_id'";
+         $rev_res = mysqli_query($con, $rev_sql);
+         $total_reviews = mysqli_num_rows($rev_res);
+         $avg_rate = 0;
+
+         while ($rev_row = mysqli_fetch_assoc($rev_res)) {
+            $avg_rate = $avg_rate + $rev_row['rate'];
+         }
+         if ($total_reviews > 0) {
+            $avg_rate = $avg_rate / $total_reviews;
+         }
+
+
+         $floored_rate = number_format($avg_rate, 0);
+         $avg_rate = number_format($avg_rate, 1);
+
+         /////////////////////////////////
+
+
+         echo '
+         <div class="col-sm-6 col-md-4 col-lg-4">
+               <div class="box">
+                  <div class="option_container">
+                     <div class="options">
+                        <a href="view_restaurant.php?id=' . $row['id'] . '" class="option2">
+                           View Restaurant
+                        </a>
+                     </div>
+                  </div>
+                  <div class="img-box">
+                     <img src="files/rest_dp/' . $row['pro_pic'] . '" alt="">
+                  </div>
+                  <div class="detail-box">
+                   <h5>
+                                    ' . $row['name'] . '
+                                </h5>
+                                <h6>';
+
+         echo $this->show_star($floored_rate);
+         echo '<br>Rating: ' . $avg_rate . '
+
+                                </h6>
                   </div>
                </div>
             </div>';
@@ -291,7 +409,7 @@ function get_user_details($uid)
 
             <?php
             $obj = new Homepage();
-            $obj->recomend();
+            $obj->top();
             ?>
 
             <div class="btn-box">
