@@ -107,6 +107,8 @@ function get_user_details($uid)
    <link href="css/font-awesome.min.css" rel="stylesheet" />
    <!-- Custom styles for this template -->
    <link href="css/style.css" rel="stylesheet" />
+   <link href="css/styles.css" rel="stylesheet" />
+
    <!-- responsive style -->
    <link href="css/responsive.css" rel="stylesheet" />
 </head>
@@ -125,6 +127,7 @@ function get_user_details($uid)
                <form method="GET" action="search.php">
                   <div class="form-group" style="float:left;">
                      <div class="input-group" style="padding: 2%; margin-top:2%;">
+
                         <input type="search" name="q" class="form-control search-box" placeholder="Find a Restaurant..." style="border-radius: 50px; margin-right: 10px;" />
                         <button type="submit" class="btn btn-primary search-btn" style="background-color: rgb(255, 60, 93); border-radius: 100px; border: 0px;">
                            <i class="fa fa-search" aria-hidden="true"></i>

@@ -21,6 +21,58 @@ if (isset($_SESSION['logid'])) {
     $display = "display:none;";
 }
 
+class Homepage
+{
+    function recomend()
+    {
+        include('include/connection.php');
+        $sql = "SELECT * FROM restaurants";
+        $res = mysqli_query($con, $sql);
+
+
+        while ($row = mysqli_fetch_assoc($res)) {
+
+
+            $details = $row['details'];
+
+            if (strlen($details) > 30) {
+                $details = substr($details, 0, 30);
+            }
+
+            $rest_id = $row['id'];
+
+            $menu_sql = "SELECT * FROM menu WHERE rest_id = '$rest_id'";
+            $menu_res = mysqli_query($con, $menu_sql);
+            $menu_count = mysqli_num_rows($menu_res);
+
+            echo '
+                    <div class="col-sm-6 col-md-4 col-lg-4">
+                        <div class="box">
+                            <div class="option_container">
+                                <div class="options">
+                                    <a href="view_restaurant.php?id=' . $row['id'] . '" class="option2">
+                                    View Restaurant
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="img-box">
+                                <img src="files/rest_dp/' . $row['pro_pic'] . '" alt="">
+                            </div>
+                            <div class="detail-box">
+                                <h5>
+                                    ' . $row['name'] . '
+                                </h5>
+                                <h6>
+                                    ' . $menu_count . '<br>Menu<br>Items
+                                </h6>
+                            </div>
+                        </div>
+                        </div>';
+        }
+    }
+}
+
+
 function get_user_details($uid)
 {
     include('include/connection.php');
@@ -30,6 +82,49 @@ function get_user_details($uid)
     $row = mysqli_fetch_array($res);
 
     return $row;
+}
+
+$q = "";
+
+if (isset($_GET['q'])) {
+    $q = $_GET['q'];
+} else {
+    header('Location: all.php');
+}
+
+$slink = "search.php?q=" . $q;
+
+
+$blogv = 0;
+$restv = 0;
+$menuv = 0;
+$othersv = 0;
+
+
+
+$blog_style = "filter-pill";
+$rest_style = "filter-pill";
+$menu_style = "filter-pill";
+$others_style = "filter-pill";
+
+$type = "all";
+
+if (isset($_GET['type'])) {
+    if ($_GET['type'] == "blog") {
+        $blog_style = "filter-pill-active";
+    } else if ($_GET['type'] == "rest") {
+        $rest_style = "filter-pill-active";
+    } else if ($_GET['type'] == "menu") {
+        $menu_style = "filter-pill-active";
+    } else if ($_GET['type'] == "all") {
+        $others_style = "filter-pill-active";
+    }
+} else {
+    $type = "all";
+    $blog_style = "filter-pill";
+    $rest_style = "filter-pill";
+    $menu_style = "filter-pill";
+    $others_style = "filter-pill";
 }
 
 ?>
@@ -57,12 +152,46 @@ function get_user_details($uid)
     <link href="css/font-awesome.min.css" rel="stylesheet" />
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet" />
+    <link href="css/styles.css" rel="stylesheet" />
+
     <!-- responsive style -->
     <link href="css/responsive.css" rel="stylesheet" />
 </head>
 
 <style>
+    .filter-pill {
+        padding: 4px;
+        color: red;
+        background-color: pink;
+        border-radius: 5px;
+        text-align: center;
+    }
 
+    .filter-pill:hover {
+        color: brown;
+        background-color: deepskyblue;
+        margin-top: 2px;
+    }
+
+    .filter-pill-active {
+        padding: 4px;
+        color: darkblue;
+        background-color: skyblue;
+        border-radius: 5px;
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .filter-pill-active:hover {
+        color: brown;
+        background-color: lightcoral;
+        border-radius: 5px;
+        margin-top: 2px;
+    }
+
+    .no-format {
+        text-decoration: none;
+    }
 </style>
 
 <body>
@@ -74,7 +203,7 @@ function get_user_details($uid)
                 <form method="GET" action="search.php">
                     <div class="form-group" style="float:left;">
                         <div class="input-group" style="padding: 2%; margin-top:2%;">
-                            <input type="search" name="q" class="form-control search-box" placeholder="Find a Restaurant..." style="border-radius: 50px; margin-right: 10px;" />
+                            <input type="search" name="q" class="form-control search-box" placeholder="Find a Restaurant..." style="border-radius: 50px; margin-right: 10px;" value="<?php echo $_GET['q']; ?>" />
                             <button type="submit" class="btn btn-primary search-btn" style="background-color: rgb(255, 60, 93); border-radius: 100px; border: 0px;">
                                 <i class="fa fa-search" aria-hidden="true"></i>
                             </button>
@@ -89,10 +218,10 @@ function get_user_details($uid)
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item active">
                             <a class="nav-link" href="all.php">All</a>
                         </li>
-                        <li class="nav-item active">
+                        <li class="nav-item">
                             <a class="nav-link" href="blog.php">Blog</a>
                         </li>
                         <li class="nav-item">
@@ -111,202 +240,108 @@ function get_user_details($uid)
     </header>
     <!-- end header section -->
 
-    <!-- subscribe section -->
-    <section class="subscribe_section">
-        <div class="container-fuild">
-            <div class="box">
-                <div class="row">
-                    <div class="col-md-6 offset-md-3">
-                        <div class="subscribe_form ">
-                            <div class="heading_container heading_center">
-                                <h3>Hello, <?= $name ?></h3>
-                            </div>
-                            <p>Write your opinion on any restaurant, food or culture!</p>
-                            <form action="create_post.php">
-                                <input type="submit" style="color: black; text-align:center;" value="Whats on your mind? Post Now!">
-                            </form>
-                        </div>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-2" style="padding-top: 40px;">
+                <p>
+                    Filter Search Result
+                </p>
+            </div>
+
+            <div class="col-1" style="padding-top: 40px;">
+                <a class="no-format" href="<?= $slink ?>&type=all">
+                    <div class="<?= $others_style ?>">
+                        <strong>All</strong>
                     </div>
-                </div>
+                </a>
             </div>
+            <div class="col-1" style="padding-top: 40px;">
+                <a class="no-format" href="<?= $slink ?>&type=blog">
+                    <div class="<?= $blog_style ?>">
+                        <strong>Blog</strong>
+                    </div>
+                </a>
+            </div>
+            <div class="col-2" style="padding-top: 40px;">
+                <a class="no-format" href="<?= $slink ?>&type=rest">
+                    <div class="<?= $rest_style ?>">
+                        <strong>Restaurant</strong>
+                    </div>
+                </a>
+            </div>
+            <div class="col-1" style="padding-top: 40px;">
+                <a class="no-format" href="<?= $slink ?>&type=menu">
+                    <div class="<?= $menu_style ?>">
+                        <strong>Menu</strong>
+                    </div>
+                </a>
+            </div>
+
+
+            <div class="col-6" style="padding-top: 40px;">
+            </div>
+
         </div>
-    </section>
-    <!-- end subscribe section -->
 
-
-
-    <!-- client section -->
-    <section class="client_section layout_padding">
-        <div class="container">
-            <div class="heading_container heading_center">
-                <h2>
-                    Latest Blog Posts
-                </h2>
-            </div>
-            <div id="carouselExample3Controls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-
-                    <?php
-
-                    $active = "";
-                    $i = 5;
-
-
-                    $post_sql = "SELECT * FROM posts ORDER BY id DESC";
-                    $post_res = mysqli_query($con, $post_sql);
-
-                    while ($i > 0) {
-                        if ($i == 5) {
-                            $active = "active";
-                        } else {
-                            $active = "";
-                        }
-
-                        $post_row = mysqli_fetch_assoc($post_res);
-                        $user_id = $post_row['user_id'];
-                        $content = $post_row['post'];
-                        if (strlen($content) > 300) {
-                            $content = substr($content, 0, 300);
-                        }
-                        $user_details_row = get_user_details($user_id);
-                        $user_photo = "files/profile/" . $user_details_row['pro_pic'];
-                        $user_name = $user_details_row['first_name'] . " " . $user_details_row['last_name'];
-
-
-
-                        echo '
-                            <div class="carousel-item ' . $active . '">
-                                <div class="box col-lg-10 mx-auto">
-                                    <div class="img_container">
-                                        <div class="img-box">
-                                            <div class="img_box-inner">
-                                                <img src="' . $user_photo . '" alt="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="detail-box">
-                                        <h5>
-                                            ' . $user_name . '
-                                        </h5>
-                                        <h6>
-                                            User
-                                        </h6>
-                                        <p>
-                                            ' . $content . '
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>';
-                        $i--;
-                    }
-
-
-                    ?>
-
-
-                </div>
-                <div class="carousel_btn_box">
-                    <a class="carousel-control-prev" href="#carouselExample3Controls" role="button" data-slide="prev">
-                        <i class="fa fa-long-arrow-left" aria-hidden="true"></i>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#carouselExample3Controls" role="button" data-slide="next">
-                        <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- end client section -->
+    </div>
 
 
     <!-- product section -->
     <section class="product_section layout_padding">
         <div class="container">
             <div class="heading_container heading_center">
+                <?php
+                include('subdir/search_backend.php');
+
+                $search_str = $_GET['q'];
+                $search_type = "all";
+                if (isset($_GET['type'])) {
+                    $search_type = $_GET['type'];
+                }
+                $search_object = new searchNow();
+
+                if ($search_type == "all") {
+                    $srch_dialog = "";
+                } else if ($search_type == "blog") {
+                    $srch_dialog = "On Blogs";
+                } else if ($search_type == "rest") {
+                    $srch_dialog = "On Restaurants";
+                } else if ($search_type == "menu") {
+                    $srch_dialog = "On Menu Items";
+                }
+
+                ?>
                 <h2>
-                    All <span>Posts</span>
+                    Search Result for <span>'<?= $search_str ?>'</span> <?= $srch_dialog ?>
                 </h2>
             </div>
             <div class="row">
 
-
-
                 <?php
-
-
-                $all_post_sql = "SELECT * FROM posts ORDER BY id DESC";
-                $all_post_res = mysqli_query($con, $all_post_sql);
-
-                while ($all_post_row = mysqli_fetch_assoc($all_post_res)) {
-                    $all_poster_id = $all_post_row['user_id'];
-                    $all_user_details_row = get_user_details($all_poster_id);
-                    $all_username = $all_user_details_row['first_name'];
-
-                    $date_time = $all_post_row['date_time'];
-                    $content = $all_post_row['post'];
-                    if (strlen($content) > 330) {
-                        $content = substr($content, 0, 330);
-                    }
-                    $title = $all_post_row['title'];
-                    if (strlen($title) > 33) {
-                        $title = substr($title, 0, 33);
-                    }
-                    $post_id = $all_post_row['id'];
-
-                    //////////////////////////
-                    $like_sql = "SELECT * FROM likes WHERE post_id = '$post_id'";
-                    $like_res = mysqli_query($con, $like_sql);
-                    $total_likes = mysqli_num_rows($like_res);
-                    /////////////////////////////////////
-
-
-                    echo '
-                        <div class="col-sm-6 col-md-4 col-lg-4">
-                            <div class="box">
-                                <div class="option_container">
-                                    <div class="options">
-                                        <a href="view_post.php?id=' . $post_id . '" class="option2">
-                                            View Post
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="detail-box">
-                                    <h5>
-                                        ' . $all_username . '
-                                    </h5>
-                                    <small>
-                                        ' . $date_time . ' <br>
-                                       Liked By : ' . $total_likes . ' <i class="fa fa-heart" style="color:red;"></i>
-                                    </small>
-                                </div>
-
-                                <hr>
-                                <h6><strong>' . $title . '</strong></h6>
-                                <hr>
-
-                                <div style="text-align:justify;">
-                                    <p>
-                                        ' . $content . '
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ';
+                if ($search_type == "all") {
+                    $search_object->rest_search($search_str);
+                    $search_object->menu_search($search_str);
+                    $search_object->blog_search($search_str);
+                } else if ($search_type == "blog") {
+                    $search_object->blog_search($search_str);
+                } else if ($search_type == "rest") {
+                    $search_object->rest_search($search_str);
+                } else if ($search_type == "menu") {
+                    $search_object->menu_search($search_str);
                 }
 
                 ?>
 
 
-                <!--<div class="btn-box">
-                    <a href="">
-                        View All Recomendation
-                    </a>
-                </div>-->
             </div>
     </section>
     <!-- end product section -->
+
+
+
+
 
 
     <!-- footer start -->

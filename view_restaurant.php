@@ -340,8 +340,9 @@ if ($owner_id == $id) {
                }
                $cmnt_sql = "SELECT * FROM menu WHERE rest_id = '$rest_id' ORDER BY id DESC";
                $cmnt_res = mysqli_query($con, $cmnt_sql);
+               $menu_num = mysqli_num_rows($cmnt_res);
 
-               if ($total_reviews == 0) {
+               if ($menu_num == 0) {
                   echo '<h3>No Items Yet</h3>';
                }
                while ($row = mysqli_fetch_assoc($cmnt_res)) {
